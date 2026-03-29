@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>追光 - 健康打卡</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 0; overflow-x: hidden; }
+        .container { max-width: 480px; margin: 0 auto; background: #ffffff; min-height: 100vh; box-shadow: 0 0 50px rgba(0,0,0,0.3); }
+        .hidden { display: none !important; }
+        
+        /* 顶部导航 */
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 20px; text-align: center; }
+        .header h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+        .header p { font-size: 12px; opacity: 0.9; letter-spacing: 1px; }
+        
+        /* 用户信息卡片 */
+        .user-card { background: #fff; margin: -30px 20px 20px; border-radius: 16px; padding: 20px; box-shadow: 0 10px 30px rgba(102,126,234,0.2); text-align: center; }
+        .user-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 12px; }
+        .user-name { font-size: 20px; font-weight: 700; color: #333; margin-bottom: 4px; }
+        .user-location { font-size: 12px; color: #999; margin-bottom: 16px; }
+        
+        /* 年度目标 */
+        .annual-goal { background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1)); padding: 16px; border-radius: 12px; margin-bottom: 16px; }
+        .goal-label { font-size: 12px; color: #667eea; font-weight: 600; margin-bottom: 8px; }
+        .goal-text { font-size: 14px; color: #333; margin-bottom: 8px; }
+        .goal-progress { font-size: 12px; color: #999; }
+        
+        /* 月度进度 */
+        .monthly-progress { background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1)); padding: 16px; border-radius: 12px; margin-bottom: 16px; }
+        .progress-label { font-size: 12px; color: #667eea; font-weight: 600; margin-bottom: 8px; }
+        .progress-bar { height: 8px; background: rgba(102,126,234,0.2); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 4px; transition: width 0.3s; }
+        .progress-text { font-size: 12px; color: #999; display: flex; justify-content: space-between; }
+        
+        /* 统计数据 */
+        .stats { display: flex; gap: 12px; margin-bottom: 20px; }
+        .stat-item { flex: 1; background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1)); padding: 12px; border-radius: 12px; text-align: center; }
+        .stat-num { font-size: 24px; font-weight: 800; color: #667eea; display: block; margin-bottom: 4px; }
+        .stat-label { font-size: 11px; color: #999; }
+        
+        /* 功能按钮 */
+        .action-buttons { display: flex; flex-direction: column; gap: 12px; }
+        .btn-action { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; border: none; padding: 18px; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(102,126,234,0.3); }
+        .btn-action:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102,126,234,0.4); }
+        .btn-action:active { transform: translateY(0); }
+        .btn-secondary { background: rgba(102,126,234,0.1); color: #667eea; border: 2px solid #667eea; }
+        
+        /* 底部导航 */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #eee; padding: 12px 20px; display: flex; justify-content: space-around; max-width: 480px; margin: 0 auto; }
+        .nav-item { text-align: center; color: #999; font-size: 11px; cursor: pointer; transition: color 0.3s; }
+        .nav-item.active { color: #667eea; }
+        .nav-icon { font-size: 24px; margin-bottom: 4px; }
+        
+        /* 打卡页 */
+        .checkin-header { background: #fff; padding: 20px; border-bottom: 1px solid #eee; }
+        .checkin-date { font-size: 18px; font-weight: 700; color: #333; margin-bottom: 4px; }
+        .checkin-weekday { font-size: 12px; color: #999; }
+        .btn-all-complete { background: linear-gradient(135deg, #f093fb, #f5576c); color: #fff; border: none; padding: 12px 24px; border-radius: 980px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 16px; width: 100%; }
+        
+        /* 打卡项目列表 */
+        .checkin-list { padding: 20px; }
+        .checkin-item { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; border: 2px solid #eee; transition: all 0.3s; }
+        .checkin-item.completed { border-color: #f5576c; background: linear-gradient(135deg, rgba(245,87,108,0.05), rgba(240,147,251,0.05)); }
+        .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .item-name { font-size: 16px; font-weight: 600; color: #333; }
+        .item-progress { font-size: 12px; color: #999; }
+        .item-actions { display: flex; justify-content: space-between; align-items: center; }
+        .btn-plus { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; border: none; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-plus:active { transform: scale(0.9); }
+        .checkmark { width: 32px; height: 32px; border-radius: 50%; background: #f5576c; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        
+        /* 心情感悟 */
+        .feeling-section { padding: 0 20px 20px; }
+        .feeling-input { width: 100%; padding: 16px; background: #f8f9fa; border: 2px solid #eee; border-radius: 12px; font-size: 14px; resize: none; font-family: inherit; }
+        .feeling-input:focus { outline: none; border-color: #667eea; }
+        
+        /* 打卡卡片 */
+        .card-preview { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 30px 20px; border-radius: 16px; margin: 20px; }
+        .card-title { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 20px; }
+        .card-item { background: rgba(255,255,255,0.2); padding: 12px; border-radius: 8px; margin-bottom: 12px; backdrop-filter: blur(10px); }
+        .card-item-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+        .card-item-progress { font-size: 12px; opacity: 0.9; }
+        .card-stats { display: flex; gap: 16px; margin: 20px 0; }
+        .card-stat { text-align: center; }
+        .card-stat-num { font-size: 20px; font-weight: 800; display: block; }
+        .card-stat-label { font-size: 11px; opacity: 0.8; }
+        .card-feeling { background: rgba(255,255,255,0.15); padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.6; margin-top: 16px; }
+        
+        /* 页面容器 */
+        .page { min-height: 100vh; padding-bottom: 80px; }
+        
+        /* 设置地点 */
+        .location-selector { padding: 20px; background: #fff; border-bottom: 1px solid #eee; }
+        .location-input { width: 100%; padding: 12px; background: #f8f9fa; border: 2px solid #eee; border-radius: 8px; font-size: 14px; }
+        
+        /* 空状态 */
+        .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+        .empty-icon { font-size: 60px; margin-bottom: 16px; }
+        .empty-text { font-size: 14px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 首页 -->
+        <div id="homePage" class="page">
+            <div class="header">
+                <h1>🔥 追光</h1>
+                <p>一群人才能走得更远</p>
+            </div>
+            
+            <div class="user-card">
+                <div class="user-avatar">👤</div>
+                <div class="user-name" id="userName">姜宏锋</div>
+                <div class="user-location" id="userLocation">📍 舟山</div>
+                
+                <!-- 年度目标 -->
+                <div class="annual-goal">
+                    <div class="goal-label">🎯 年度目标</div>
+                    <div class="goal-text" id="annualGoalText">活到 92 岁，苗条 3kg</div>
+                    <div class="goal-progress">当前 78.75 → 75.75kg</div>
+                </div>
+                
+                <!-- 月度进度 -->
+                <div class="monthly-progress">
+                    <div class="goal-label">📊 3 月进度</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="monthlyProgressFill" style="width: 67%;"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span>本月 4/6 达标</span>
+                        <span>67%</span>
+                    </div>
+                </div>
+                
+                <!-- 统计数据 -->
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-num" id="rankNum">3</span>
+                        <span class="stat-label">群排名</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num" id="streakNum">15</span>
+                        <span class="stat-label">连续打卡</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num" id="donationNum">500</span>
+                        <span class="stat-label">乐捐 (元)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 功能按钮 -->
+            <div class="action-buttons" style="padding: 0 20px;">
+                <button class="btn-action" onclick="goToCheckin()">📝 今日打卡</button>
+                <button class="btn-action btn-secondary" onclick="showGoals()">🎯 我的目标</button>
+                <button class="btn-action btn-secondary" onclick="showRanking()">🏆 群排行榜</button>
+                <button class="btn-action btn-secondary" onclick="showSettlement()">💰 月度结算</button>
+            </div>
+        </div>
+        
+        <!-- 打卡页 -->
+        <div id="checkinPage" class="page hidden">
+            <div class="checkin-header">
+                <div class="checkin-date" id="checkinDate">3 月 29 日</div>
+                <div class="checkin-weekday" id="checkinWeekday">周日</div>
+                
+                <!-- 地点选择 -->
+                <div class="location-selector">
+                    <input type="text" class="location-input" id="locationInput" placeholder="📍 点击输入地点" value="舟山">
+                </div>
+                
+                <button class="btn-all-complete" onclick="completeAll()">✅ 全部完成</button>
+            </div>
+            
+            <div class="checkin-list" id="checkinList">
+                <!-- 动态生成打卡项目 -->
+            </div>
+            
+            <div class="feeling-section">
+                <textarea class="feeling-input" id="feelingInput" placeholder="💭 今日感悟（可选）" rows="3"></textarea>
+            </div>
+            
+            <div style="padding: 0 20px 20px;">
+                <button class="btn-action" onclick="submitCheckin()" style="width: 100%;">确认打卡并分享</button>
+                <button class="btn-action btn-secondary" onclick="goHome()" style="width: 100%; margin-top: 12px;">取消</button>
+            </div>
+        </div>
+        
+        <!-- 打卡卡片页 -->
+        <div id="cardPage" class="page hidden">
+            <div style="padding: 20px 20px 0; text-align: center;">
+                <button class="btn-action btn-secondary" onclick="goHome()" style="padding: 10px 24px; font-size: 14px;">← 返回首页</button>
+            </div>
+            
+            <div class="card-preview" id="cardPreview">
+                <!-- 动态生成打卡卡片 -->
+            </div>
+            
+            <div style="padding: 0 20px 20px;">
+                <button class="btn-action" onclick="shareCard()" style="width: 100%;">📤 复制分享</button>
+                <p style="text-align: center; color: #999; font-size: 12px; margin-top: 16px;">长按保存图片，或截图分享到群</p>
+            </div>
+        </div>
+        
+        <!-- 我的目标页 -->
+        <div id="goalsPage" class="page hidden">
+            <div style="padding: 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff;">
+                <button onclick="goHome()" style="background:transparent;border:none;color:#fff;font-size:24px;cursor:pointer;">←</button>
+                <h1 style="font-size: 24px; font-weight: 700; margin-top: 12px;">🎯 我的目标</h1>
+            </div>
+            <div style="padding: 20px;">
+                <div class="empty-state">
+                    <div class="empty-icon">🎯</div>
+                    <div class="empty-text">目标设定功能开发中...</div>
+                    <button class="btn-action" onclick="addDemoGoals()" style="padding: 12px 24px; font-size: 14px;">添加示例目标</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 底部导航 -->
+    <div class="bottom-nav" id="bottomNav">
+        <div class="nav-item active" onclick="goHome()">
+            <div class="nav-icon">🏠</div>
+            <div>首页</div>
+        </div>
+        <div class="nav-item" onclick="goToCheckin()">
+            <div class="nav-icon">📝</div>
+            <div>打卡</div>
+        </div>
+        <div class="nav-item" onclick="showRanking()">
+            <div class="nav-icon">🏆</div>
+            <div>排行</div>
+        </div>
+        <div class="nav-item" onclick="showProfile()">
+            <div class="nav-icon">👤</div>
+            <div>我的</div>
+        </div>
+    </div>
+    
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
