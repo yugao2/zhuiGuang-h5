@@ -1,0 +1,1 @@
+# 追光 - 健康打卡小程序 H5 原型\n\n> 一群人才能走得更远\n\n## 项目状态\n\n- [x] 项目初始化\n- [ ] 首页开发\n- [ ] 打卡页开发\n- [ ] 打卡卡片生成\n- [ ] 进度统计\n- [ ] GitHub Pages 部署\n\n## 技术栈\n\n- 纯 HTML/CSS/JavaScript\n- localStorage 本地存储\n- Canvas 海报生成\n\n## 下一步\n\nH5 验证后移植到链如意小程序\n\n---\n\n*项目创建时间：2026-03-29*
