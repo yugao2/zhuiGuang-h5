@@ -14,21 +14,19 @@ function loadUserData() {
     const goals = Utils.loadData('zhuiGuang_goals', demoGoals);
     const streak = Utils.loadData('zhuiGuang_streak', 15);
     
-    // 更新首页数据
     document.getElementById('userName').textContent = user.nickname;
     document.getElementById('userLocation').textContent = '📍 ' + user.location;
     document.getElementById('annualGoalText').textContent = user.annualGoal;
-    document.getElementById('donationNum').textContent = user.totalDonation;
+    document.getElementById('donationNum').textContent = Utils.formatNumber(user.totalDonation);
     document.getElementById('streakNum').textContent = streak;
     
-    // 计算月度进度
     const completedCount = goals.filter(g => g.completed).length;
     const totalCount = goals.length;
     const progress = Math.round((completedCount / totalCount) * 100);
     
     document.getElementById('monthlyProgressFill').style.width = progress + '%';
-    document.querySelector('#monthlyProgress .progress-text span:first-child').textContent = 
-        `本月 ${completedCount}/${totalCount} 达标`;
+    document.getElementById('progressText').textContent = `本月 ${completedCount}/${totalCount} 达标`;
+    document.getElementById('progressPercent').textContent = progress + '%';
 }
 
 // 更新日期
@@ -47,7 +45,7 @@ function renderCheckinList() {
             <div class="empty-state">
                 <div class="empty-icon">📝</div>
                 <div class="empty-text">暂无打卡项目</div>
-                <button class="btn-action" onclick="addDemoGoals()" style="padding: 12px 24px; font-size: 14px;">添加示例项目</button>
+                <button class="btn-action" onclick="addDemoGoals()" style="padding: var(--space-3) var(--space-5); font-size: 14px;">添加示例项目</button>
             </div>
         `;
         return;
@@ -58,6 +56,8 @@ function renderCheckinList() {
         const progress = Utils.calculateProgress(goal.currentMonth, goal.monthlyTarget);
         const remaining = goal.monthlyTarget - goal.currentMonth;
         const completedClass = goal.completed ? 'completed' : '';
+        const urgentClass = remaining <= 2 ? 'urgent' : 'normal';
+        const remainingText = remaining <= 2 ? `差${remaining}次达标` : `还差${remaining}次`;
         const actionHtml = goal.completed 
             ? `<div class="checkmark">✓</div>`
             : `<button class="btn-plus" onclick="plusOne(${index})">+</button>`;
@@ -69,9 +69,7 @@ function renderCheckinList() {
                     <div class="item-progress">本月 ${goal.currentMonth}/${goal.monthlyTarget} ${goal.unit}</div>
                 </div>
                 <div class="item-actions">
-                    <div class="item-progress" style="color: ${remaining <= 2 ? '#f5576c' : '#999'}">
-                        ${remaining <= 2 ? '差' + remaining + '次达标' : '还差' + remaining + '次'}
-                    </div>
+                    <div class="item-remaining ${urgentClass}">${remainingText}</div>
                     ${actionHtml}
                 </div>
             </div>
@@ -92,6 +90,8 @@ function plusOne(index) {
     Utils.saveData('zhuiGuang_goals', goals);
     renderCheckinList();
     updateHomePage();
+    
+    if (navigator.vibrate) navigator.vibrate(50);
 }
 
 // 全部完成
@@ -110,10 +110,7 @@ function completeAll() {
     renderCheckinList();
     updateHomePage();
     
-    // 震动反馈
-    if (navigator.vibrate) {
-        navigator.vibrate(50);
-    }
+    if (navigator.vibrate) navigator.vibrate(50);
 }
 
 // 更新首页数据
@@ -124,8 +121,8 @@ function updateHomePage() {
     const progress = Math.round((completedCount / totalCount) * 100);
     
     document.getElementById('monthlyProgressFill').style.width = progress + '%';
-    document.querySelector('.monthly-progress .progress-text span:first-child').textContent = 
-        `本月 ${completedCount}/${totalCount} 达标`;
+    document.getElementById('progressText').textContent = `本月 ${completedCount}/${totalCount} 达标`;
+    document.getElementById('progressPercent').textContent = progress + '%';
 }
 
 // 提交打卡
@@ -136,7 +133,6 @@ function submitCheckin() {
     const user = Utils.loadData('zhuiGuang_user', demoUser);
     const streak = Utils.loadData('zhuiGuang_streak', 15);
     
-    // 生成打卡卡片
     const completedGoals = goals.filter(g => g.completed);
     const completedCount = completedGoals.length;
     const totalCount = goals.length;
@@ -165,12 +161,13 @@ function renderCard(data) {
     let goalsHtml = '';
     data.goals.forEach(goal => {
         const progress = Utils.calculateProgress(goal.currentMonth, goal.monthlyTarget);
+        const barWidth = Math.floor(progress / 10);
         goalsHtml += `
             <div class="card-item">
                 <div class="card-item-name">✅ ${goal.name} +1</div>
                 <div class="card-item-progress">
-                    ${'█'.repeat(Math.floor(progress/10))}${'░'.repeat(10-Math.floor(progress/10))} ${progress}%
-                    本月${goal.currentMonth}/${goal.monthlyTarget} ${goal.unit}
+                    ${'█'.repeat(barWidth)}${'░'.repeat(10 - barWidth)} ${progress}%
+                    <br>本月 ${goal.currentMonth}/${goal.monthlyTarget} ${goal.unit}
                 </div>
             </div>
         `;
@@ -180,7 +177,7 @@ function renderCard(data) {
     
     container.innerHTML = `
         <div class="card-title">🔥 今日打卡</div>
-        <div style="text-align: center; margin-bottom: 20px; opacity: 0.9;">
+        <div class="card-subtitle">
             ${data.userName} | ${data.date} ${data.weekday}<br>
             📍 ${data.location}
         </div>
@@ -208,7 +205,7 @@ function renderCard(data) {
             </div>
         ` : ''}
         
-        <div style="text-align: center; margin-top: 20px; font-size: 13px; opacity: 0.8;">
+        <div class="card-footer">
             ${cardText}
         </div>
     `;
@@ -216,7 +213,7 @@ function renderCard(data) {
 
 // 分享卡片
 function shareCard() {
-    alert('长按图片保存，或截图分享到微信群！\n\n（H5 版本暂不支持自动分享，小程序版将支持一键分享）');
+    alert('📸 截图保存，然后分享到微信群！\n\n（小程序版将支持一键分享）');
 }
 
 // 页面导航
@@ -248,11 +245,11 @@ function showGoals() {
 }
 
 function showRanking() {
-    alert('🏆 群排行榜功能开发中...\n\n将显示：\n- 本月完成率排名\n- 连续打卡天数\n- 乐捐金额统计');
+    alert('🏆 群排行榜功能开发中...\n\n将显示：\n• 本月完成率排名\n• 连续打卡天数\n• 乐捐金额统计');
 }
 
 function showSettlement() {
-    alert('💰 月度结算功能开发中...\n\n将显示：\n- 未达标项目\n- 乐捐金额\n- 群内公示');
+    alert('💰 月度结算功能开发中...\n\n将显示：\n• 未达标项目\n• 乐捐金额\n• 群内公示');
 }
 
 function showProfile() {

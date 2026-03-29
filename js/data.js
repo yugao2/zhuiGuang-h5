@@ -171,6 +171,11 @@ const Utils = {
     loadData: function(key, defaultValue) {
         const data = localStorage.getItem(key);
         return data ? JSON.parse(data) : defaultValue;
+    },
+    
+    // 格式化数字
+    formatNumber: function(num) {
+        return num.toLocaleString();
     }
 };
 
