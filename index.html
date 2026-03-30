@@ -118,11 +118,102 @@
                 <button onclick="goHome()" style="background:transparent;border:none;color:var(--white);font-size:24px;cursor:pointer;">←</button>
                 <h1 style="font-size: 24px; font-weight: 800; margin-top: var(--space-3);">🎯 我的目标</h1>
             </div>
-            <div style="padding: var(--space-6);">
-                <div class="empty-state">
-                    <div class="empty-icon">🎯</div>
-                    <div class="empty-text">目标设定功能开发中...</div>
-                    <button class="btn-action" onclick="addDemoGoals()" style="padding: var(--space-3) var(--space-5); font-size: 14px;">添加示例目标</button>
+            <div style="padding: var(--space-6); padding-bottom: 80px;">
+                <div class="user-card" style="margin-bottom: var(--space-5);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+                        <h2 style="font-size: 18px; font-weight: 700;">📋 打卡项目</h2>
+                        <button class="btn-action" onclick="showAddGoalModal()" style="padding: var(--space-2) var(--space-4); font-size: 13px;">+ 新增</button>
+                    </div>
+                    <div id="goalsListContainer"></div>
+                </div>
+                
+                <div class="user-card">
+                    <h2 style="font-size: 18px; font-weight: 700; margin-bottom: var(--space-4);">🎯 年度目标</h2>
+                    <div style="display: flex; gap: var(--space-3); margin-bottom: var(--space-4);">
+                        <input type="text" id="annualGoalInput" class="location-input" placeholder="输入年度目标" style="flex: 1;">
+                    </div>
+                    <div style="display: flex; gap: var(--space-3);">
+                        <input type="number" id="currentWeightInput" class="location-input" placeholder="当前体重" style="flex: 1;">
+                        <input type="number" id="targetWeightInput" class="location-input" placeholder="目标体重" style="flex: 1;">
+                    </div>
+                    <button class="btn-action" onclick="saveAnnualGoal()" style="width: 100%; margin-top: var(--space-4);">保存目标</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 群排行榜页 -->
+        <div id="rankingPage" class="page hidden">
+            <div style="padding: var(--space-6); background: var(--primary-gradient); color: var(--white);">
+                <button onclick="goHome()" style="background:transparent;border:none;color:var(--white);font-size:24px;cursor:pointer;">←</button>
+                <h1 style="font-size: 24px; font-weight: 800; margin-top: var(--space-3);">🏆 群排行榜</h1>
+                <p style="opacity: 0.9; margin-top: var(--space-2);">3 月进度 · 按完成率排序</p>
+            </div>
+            <div style="padding: var(--space-6); padding-bottom: 80px;">
+                <div id="rankingListContainer"></div>
+            </div>
+        </div>
+        
+        <!-- 月度结算页 -->
+        <div id="settlementPage" class="page hidden">
+            <div style="padding: var(--space-6); background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: var(--white);">
+                <button onclick="goHome()" style="background:transparent;border:none;color:var(--white);font-size:24px;cursor:pointer;">←</button>
+                <h1 style="font-size: 24px; font-weight: 800; margin-top: var(--space-3);">💰 月度结算</h1>
+                <p style="opacity: 0.9; margin-top: var(--space-2);">3 月未达标项目统计</p>
+            </div>
+            <div style="padding: var(--space-6); padding-bottom: 80px;">
+                <div class="user-card" style="margin-bottom: var(--space-5); text-align: center;">
+                    <div style="font-size: 14px; color: var(--gray-500); margin-bottom: var(--space-2);">本月乐捐总额</div>
+                    <div style="font-size: 48px; font-weight: 800; color: #f59e0b;" id="totalDonationDisplay">¥500</div>
+                    <div style="font-size: 13px; color: var(--gray-500); margin-top: var(--space-2);">未达标项目乐捐累计</div>
+                </div>
+                
+                <div class="user-card">
+                    <h2 style="font-size: 16px; font-weight: 700; margin-bottom: var(--space-4);">📋 未达标项目</h2>
+                    <div id="uncompletedListContainer"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 个人中心页 -->
+        <div id="profilePage" class="page hidden">
+            <div style="padding: var(--space-6); background: var(--primary-gradient); color: var(--white);">
+                <button onclick="goHome()" style="background:transparent;border:none;color:var(--white);font-size:24px;cursor:pointer;">←</button>
+                <h1 style="font-size: 24px; font-weight: 800; margin-top: var(--space-3);">👤 个人中心</h1>
+            </div>
+            <div style="padding: var(--space-6); padding-bottom: 80px;">
+                <div class="user-card" style="margin-bottom: var(--space-5);">
+                    <div style="display: flex; align-items: center; gap: var(--space-4);">
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--primary-gradient); display: flex; align-items: center; justify-content: center; font-size: 32px;" id="profileAvatar">👤</div>
+                        <div>
+                            <input type="text" id="profileNameInput" class="location-input" placeholder="昵称" style="font-weight: 700; font-size: 18px;">
+                            <input type="text" id="profileLocationInput" class="location-input" placeholder="地点" style="font-size: 14px; color: var(--gray-500); margin-top: 4px;">
+                        </div>
+                    </div>
+                    <button class="btn-action" onclick="saveProfile()" style="width: 100%; margin-top: var(--space-4);">保存资料</button>
+                </div>
+                
+                <div class="user-card">
+                    <h2 style="font-size: 16px; font-weight: 700; margin-bottom: var(--space-4);">📊 我的数据</h2>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); text-align: center;">
+                        <div>
+                            <div style="font-size: 24px; font-weight: 800; color: var(--primary);" id="profileStreakNum">15</div>
+                            <div style="font-size: 12px; color: var(--gray-500);">连续打卡</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 24px; font-weight: 800; color: var(--success);" id="profileCompletedNum">4</div>
+                            <div style="font-size: 12px; color: var(--gray-500);">本月达标</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 24px; font-weight: 800; color: #f59e0b;" id="profileDonationNum">500</div>
+                            <div style="font-size: 12px; color: var(--gray-500);">乐捐总额</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="user-card" style="margin-top: var(--space-5);">
+                    <h2 style="font-size: 16px; font-weight: 700; margin-bottom: var(--space-4);">⚙️ 设置</h2>
+                    <button class="btn-action btn-secondary" onclick="resetAllData()" style="width: 100%; color: #ef4444; border-color: #ef4444;">🗑️ 重置所有数据</button>
+                    <button class="btn-action btn-secondary" onclick="exportData()" style="width: 100%; margin-top: var(--space-3);">📤 导出数据</button>
                 </div>
             </div>
         </div>
